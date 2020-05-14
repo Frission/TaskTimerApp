@@ -9,13 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,10 +31,15 @@ class MainActivity : AppCompatActivity() {
                 .build()
         sqliteDatabase = appDatabase?.readableDatabase!!
 
-        var projection: Array<String> =
-            arrayOf(TasksContract.Columns.TASKS_NAME, TasksContract.Columns.TASKS_DESCRIPTION)
-        var contentResolver: ContentResolver = getContentResolver()
-        var cursor: Cursor? = contentResolver.query(
+        val projection: Array<String> =
+            arrayOf(TasksContract.Columns._ID,
+                TasksContract.Columns.TASKS_NAME,
+                TasksContract.Columns.TASKS_DESCRIPTION,
+                TasksContract.Columns.TASKS_SORTORDER)
+
+        val contentResolver: ContentResolver = getContentResolver()
+
+        val cursor: Cursor? = contentResolver.query(
             TasksContract.CONTENT_URI,
             projection,
             null,
@@ -73,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.menuMain_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
     }
