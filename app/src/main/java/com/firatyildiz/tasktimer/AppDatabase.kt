@@ -4,15 +4,20 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import java.lang.IllegalStateException
 
 /**
 *   Basic database class for the application
 *
 *   The only class that should use this is AppProvider.
+ *   This was implemented as part of the course I'm following, but I'll be using the Room database
+ *    for db access inside the app.
  */
 class AppDatabase private constructor (context: Context?) :
-     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+    SQLiteOpenHelper(
+        context,
+        DATABASE_NAME, null,
+        DATABASE_VERSION
+    ) {
 
     companion object {
         const val TAG = "AppDatabase"
@@ -27,7 +32,8 @@ class AppDatabase private constructor (context: Context?) :
             else {
                 synchronized(this) {
                     if (instance == null)
-                        instance = AppDatabase(context)
+                        instance =
+                            AppDatabase(context)
 
                     return instance
                 }

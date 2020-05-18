@@ -9,10 +9,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 import android.util.Log
-import kotlinx.coroutines.selects.select
-import java.lang.Exception
-import java.lang.IllegalStateException
-import java.lang.NullPointerException
 
 /**
  * Provider for the TaskTimer app.
@@ -27,13 +23,21 @@ class AppProvider : ContentProvider() {
         const val CONTENT_AUTHORITY = "com.firatyildiz.tasktimer.provider"
         val CONTENT_AUTHORITY_URI: Uri = Uri.parse("content://$CONTENT_AUTHORITY")
 
-        val uriMatcher: UriMatcher = buildUriMatcher()
+        val uriMatcher: UriMatcher =
+            buildUriMatcher()
 
         private fun buildUriMatcher(): UriMatcher {
             val matcher = UriMatcher(UriMatcher.NO_MATCH)
 
-            matcher.addURI(CONTENT_AUTHORITY, TasksContract.TABLE_NAME, TASKS)
-            matcher.addURI(CONTENT_AUTHORITY, TasksContract.TABLE_NAME + "/#", TASKS_ID)
+            matcher.addURI(
+                CONTENT_AUTHORITY,
+                TasksContract.TABLE_NAME,
+                TASKS
+            )
+            matcher.addURI(
+                CONTENT_AUTHORITY, TasksContract.TABLE_NAME + "/#",
+                TASKS_ID
+            )
 
 //            matcher.addURI(CONTENT_AUTHORITY, TimingsContract.TABLE_NAME, TIMINGS)
 //            matcher.addURI(ContentProvider, TimingsContract.TABLE_NAME + "/#", TIMINGS_ID)
@@ -60,7 +64,11 @@ class AppProvider : ContentProvider() {
 
 
     override fun onCreate(): Boolean {
-        openHelper = context?.let { AppDatabase.getInstance(it) }
+        openHelper = context?.let {
+            AppDatabase.getInstance(
+                it
+            )
+        }
         return true
     }
 
@@ -70,10 +78,13 @@ class AppProvider : ContentProvider() {
         val queryBuilder = SQLiteQueryBuilder()
 
         when(match) {
-            TASKS -> queryBuilder.tables = TasksContract.TABLE_NAME
+            TASKS -> queryBuilder.tables =
+                TasksContract.TABLE_NAME
             TASKS_ID -> {
-                queryBuilder.tables = TasksContract.TABLE_NAME
-                val taskId: Long = TasksContract.getTaskId(uri)
+                queryBuilder.tables =
+                    TasksContract.TABLE_NAME
+                val taskId: Long =
+                    TasksContract.getTaskId(uri)
                 queryBuilder.appendWhere(TasksContract.Columns._ID + " = " + taskId)
             }
 
@@ -117,7 +128,10 @@ class AppProvider : ContentProvider() {
                 if(db != null) {
                     recordId = db.insert(TasksContract.TABLE_NAME, null, values)
                     if(recordId >= 0)
-                        returnUri = TasksContract.buildTaskUri(recordId)
+                        returnUri =
+                            TasksContract.buildTaskUri(
+                                recordId
+                            )
                     else
                         throw SQLException("Failed to insert into " + uri.toString())
                 }
@@ -162,7 +176,8 @@ class AppProvider : ContentProvider() {
 
             TASKS_ID -> {
                 db = openHelper?.writableDatabase
-                val taskId = TasksContract.getTaskId(uri)
+                val taskId =
+                    TasksContract.getTaskId(uri)
                 selectionCriteria = TasksContract.Columns._ID + " = " + taskId
 
                 if(selection != null && selection.isNotEmpty()) {
@@ -225,7 +240,8 @@ class AppProvider : ContentProvider() {
 
             TASKS_ID -> {
                 db = openHelper?.writableDatabase
-                val taskId = TasksContract.getTaskId(uri)
+                val taskId =
+                    TasksContract.getTaskId(uri)
                 selectionCriteria = TasksContract.Columns._ID + " = " + taskId
 
                 if(selection != null && selection.isNotEmpty()) {
