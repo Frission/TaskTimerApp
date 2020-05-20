@@ -4,19 +4,29 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.ViewModelProvider
 import com.firatyildiz.tasktimer.R
 import com.firatyildiz.tasktimer.activities.AddEditActivity
+import com.firatyildiz.tasktimer.activities.AddEditFragment
+import com.firatyildiz.tasktimer.adapters.TaskRecyclerAdapter
 import com.firatyildiz.tasktimer.model.entities.Tasks
+import com.firatyildiz.tasktimer.model.viewmodel.TasksViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickListener,
+    AddEditFragment.OnFragmentCloseButtonClicked {
 
     companion object {
         private val ADD_EDIT_FRAGMENT = "AddEditFragment"
     }
 
     private val TAG = "MainActivity"
+    private lateinit var taskViewModel: TasksViewModel
+    private lateinit var fragment: AddEditFragment
 
     // if we have enough space to show two fragments in one pane
     private var twoPane = false
@@ -25,6 +35,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        taskViewModel = ViewModelProvider(this).get(TasksViewModel::class.java)
+
+        if (findViewById<View>(R.id.task_details_container) != null) {
+            // The detail container view will be present only in the large-screen layouts
+            // res/values-land and res/values-sw600dp
+            // If this view is present, then the app should be in two pane mode
+            twoPane = true
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -52,7 +71,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun taskEditRequest(task: Tasks?) {
         if (twoPane) {
+            fragment = AddEditFragment()
 
+            val arguments: Bundle = Bundle()
+            arguments.putSerializable(Tasks::class.java.simpleName, task)
+            fragment.arguments = arguments
+
+            val fragmentManager: FragmentManager = supportFragmentManager
+            val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.task_details_container, fragment)
+            fragmentTransaction.setCustomAnimations(
+                R.anim.fragment_fade_enter,
+                R.anim.fragment_fade_exit
+            )
+            fragmentTransaction.commit()
         } else {
             var detailIntent = Intent(this, AddEditActivity::class.java)
             if (task != null) {
@@ -62,6 +94,25 @@ class MainActivity : AppCompatActivity() {
                 startActivity(detailIntent)
             }
         }
+    }
+
+    override fun onEditTaskClicked(task: Tasks) {
+        taskEditRequest(task)
+    }
+
+    override fun onDeleteTaskClicked(task: Tasks) {
+        taskViewModel.delete(task)
+    }
+
+    override fun onFragmentCloseButtonClicked() {
+        val fragmentManager: FragmentManager = supportFragmentManager
+        val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.remove(fragment)
+        fragmentTransaction.setCustomAnimations(
+            R.anim.fragment_fade_enter,
+            R.anim.fragment_fade_exit
+        )
+        fragmentTransaction.commit()
     }
 }
 

@@ -1,5 +1,7 @@
 package com.firatyildiz.tasktimer.activities
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,6 +34,12 @@ class AddEditFragment : Fragment() {
     private var task: Tasks? = null
     private var tasksRepository: TasksRepository? = null
 
+    interface OnFragmentCloseButtonClicked {
+        fun onFragmentCloseButtonClicked()
+    }
+
+    var closeButtonListener: OnFragmentCloseButtonClicked? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,7 +56,7 @@ class AddEditFragment : Fragment() {
         sortOrderTextView = view.findViewById(R.id.add_edit_sortorder)!!
         saveButton = view.findViewById(R.id.add_edit_save)!!
 
-        var arguments = activity?.intent?.extras
+        var arguments = arguments
 
         if (arguments != null) {
             task = arguments.getSerializable(Tasks::class.java.simpleName) as Tasks
@@ -74,6 +82,17 @@ class AddEditFragment : Fragment() {
 
         // Inflate the layout for this fragment
         return view
+    }
+
+    override fun onAttach(context: Context) {
+        if (context is Activity && context is OnFragmentCloseButtonClicked)
+            closeButtonListener = context
+        super.onAttach(context)
+    }
+
+    override fun onDetach() {
+        closeButtonListener = null
+        super.onDetach()
     }
 
     private var onSaveButtonClicked = View.OnClickListener {
@@ -118,10 +137,12 @@ class AddEditFragment : Fragment() {
                 }
             }
         }
+
+        closeButtonListener?.onFragmentCloseButtonClicked()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-    }
+//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+//
+//    }
 }

@@ -7,7 +7,7 @@ import com.firatyildiz.tasktimer.model.entities.Tasks
 
 @Dao
 interface TasksDao {
-    @Query("SELECT * FROM ${TasksContract.TABLE_NAME}")
+    @Query("SELECT * FROM ${TasksContract.TABLE_NAME} ORDER BY ${TasksContract.Columns.TASKS_SORTORDER} , ${TasksContract.Columns.TASKS_NAME} COLLATE NOCASE")
     fun getAllTasks(): LiveData<List<Tasks>>
 
     @Query("SELECT * FROM ${TasksContract.TABLE_NAME} WHERE ${TasksContract.Columns.TASKS_NAME} == (:name)")
