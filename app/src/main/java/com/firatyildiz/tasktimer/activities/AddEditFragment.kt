@@ -33,6 +33,7 @@ class AddEditFragment : Fragment() {
 
     private var task: Tasks? = null
     private var tasksRepository: TasksRepository? = null
+    private var edited: Boolean = false
 
     interface OnFragmentCloseButtonClicked {
         fun onFragmentCloseButtonClicked()
@@ -104,7 +105,6 @@ class AddEditFragment : Fragment() {
         else
             sortOrder = sortOrderTextView.text.toString().toInt()
 
-        var edited = false
         when (mode) {
             FragmentEditMode.EDIT -> {
                 if (nameTextView.text.toString() != task?.name) {
@@ -139,6 +139,11 @@ class AddEditFragment : Fragment() {
         }
 
         closeButtonListener?.onFragmentCloseButtonClicked()
+    }
+
+    fun canClose(): Boolean {
+        return false
+        //return !edited
     }
 
 //    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

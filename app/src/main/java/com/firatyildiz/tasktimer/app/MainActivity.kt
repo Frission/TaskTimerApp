@@ -2,6 +2,7 @@ package com.firatyildiz.tasktimer.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
+import com.firatyildiz.tasktimer.BuildConfig
 import com.firatyildiz.tasktimer.R
 import com.firatyildiz.tasktimer.activities.AddEditActivity
 import com.firatyildiz.tasktimer.activities.AddEditFragment
@@ -18,10 +20,11 @@ import com.firatyildiz.tasktimer.model.viewmodel.TasksViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickListener,
-    AddEditFragment.OnFragmentCloseButtonClicked {
+    AddEditFragment.OnFragmentCloseButtonClicked, AppDialog.DialogEvents {
 
     companion object {
-        private val ADD_EDIT_FRAGMENT = "AddEditFragment"
+        val DIALOG_ID_DELETE = 1
+        val DIALOG_ID_CANCEL_EDIT = 2
     }
 
     private val TAG = "MainActivity"
@@ -101,7 +104,16 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
     }
 
     override fun onDeleteTaskClicked(task: Tasks) {
-        taskViewModel.delete(task)
+        val dialog: AppDialog = AppDialog()
+        val args: Bundle = Bundle()
+
+        args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_DELETE)
+        args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.deldiag_message, task.name))
+        args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.deldiag_positive_caption)
+        args.putInt("TaskId", task._id)
+
+        dialog.arguments = args
+        dialog.show(supportFragmentManager, null)
     }
 
     override fun onFragmentCloseButtonClicked() {
@@ -113,6 +125,56 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
             R.anim.fragment_fade_exit
         )
         fragmentTransaction.commit()
+    }
+
+    override fun onPositiveDialogResult(dialogId: Int, args: Bundle?) {
+        Log.d(TAG, "onPositiveDialogResult: called")
+        val taskId = args?.getInt("TaskId")
+
+        when (dialogId) {
+            DIALOG_ID_DELETE -> {
+                if (taskId != null)
+                    taskViewModel.deleteById(taskId)
+                else if (BuildConfig.DEBUG)
+                    throw AssertionError("Task ID to be deleted returned null")
+            }
+
+            DIALOG_ID_CANCEL_EDIT -> { /* no action required */
+            }
+        }
+    }
+
+    override fun onNegativeDialogResult(dialogId: Int, args: Bundle?) {
+        Log.d(TAG, "onNegativeDialogResult: called")
+        when (dialogId) {
+            DIALOG_ID_CANCEL_EDIT -> finish()
+        }
+    }
+
+    override fun onDialogCancelled(dialogId: Int) {
+
+    }
+
+    override fun onBackPressed() {
+        Log.d(TAG, "onBackPressed: back button has been pressed")
+        val fragmentManager: FragmentManager = supportFragmentManager
+        val fragment =
+            fragmentManager.findFragmentById(R.id.task_details_container) as AddEditFragment
+
+        if (fragment == null || fragment.canClose())
+            super.onBackPressed()
+        else {
+            val dialog = AppDialog()
+            val args = Bundle()
+
+            args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_CANCEL_EDIT)
+            args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.cancelEditDiag_message))
+            args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.cancelEditDiag_positive_caption)
+            args.putInt(AppDialog.DIALOG_NEGATIVE_RID, R.string.cancelEditDiag_negative_caption)
+
+            dialog.arguments = args
+            dialog.show(supportFragmentManager, null)
+        }
     }
 }
 

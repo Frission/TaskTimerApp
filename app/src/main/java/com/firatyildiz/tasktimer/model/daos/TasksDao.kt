@@ -24,4 +24,7 @@ interface TasksDao {
 
     @Query("DELETE FROM ${TasksContract.TABLE_NAME} WHERE ${TasksContract.Columns.TASKS_NAME} == (:name)")
     suspend fun deleteTaskByName(name: String): Int?
+
+    @Query("DELETE FROM ${TasksContract.TABLE_NAME} WHERE ${TasksContract.Columns._ID} == (:taskId)")
+    suspend fun deleteTaskById(taskId: Int): Int?
 }
