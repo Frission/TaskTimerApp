@@ -6,8 +6,8 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import com.firatyildiz.tasktimer.AppDialog
 import com.firatyildiz.tasktimer.R
-import com.firatyildiz.tasktimer.app.AppDialog
 import com.firatyildiz.tasktimer.model.entities.Tasks
 import kotlinx.android.synthetic.main.activity_add_edit.*
 

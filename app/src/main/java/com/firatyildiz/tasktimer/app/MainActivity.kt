@@ -1,15 +1,19 @@
 package com.firatyildiz.tasktimer.app
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
+import com.firatyildiz.tasktimer.AppDialog
 import com.firatyildiz.tasktimer.BuildConfig
 import com.firatyildiz.tasktimer.R
 import com.firatyildiz.tasktimer.activities.AddEditActivity
@@ -21,13 +25,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickListener,
     AddEditFragment.OnFragmentCloseButtonClicked, AppDialog.DialogEvents {
+    private val TAG = "MainActivity"
 
     companion object {
         val DIALOG_ID_DELETE = 1
         val DIALOG_ID_CANCEL_EDIT = 2
     }
 
-    private val TAG = "MainActivity"
+    private var alertDialog: AlertDialog? = null
     private lateinit var taskViewModel: TasksViewModel
     private lateinit var fragment: AddEditFragment
 
@@ -39,6 +44,8 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        // this model will be observed by the MainFragment, which is contained in this activity
+        // creating it here ensures it survives orientation changes
         taskViewModel = ViewModelProvider(this).get(TasksViewModel::class.java)
 
         if (findViewById<View>(R.id.task_details_container) != null) {
@@ -47,6 +54,12 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
             // If this view is present, then the app should be in two pane mode
             twoPane = true
         }
+    }
+
+    override fun onStop() {
+        alertDialog?.dismiss()
+
+        super.onStop()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -66,10 +79,31 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
             }
             R.id.menuMain_showDurations -> true
             R.id.menuMain_settings -> true
-            R.id.menuMain_about -> true
+            R.id.menuMain_about -> {
+                showAboutDialog()
+                true
+            }
             R.id.menuMain_generate -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    @SuppressLint("InflateParams", "SetTextI18n")
+    private fun showAboutDialog() {
+        val messageView = layoutInflater.inflate(R.layout.about, null, false)
+        val builder = AlertDialog.Builder(this)
+        builder.setView(messageView)
+
+        builder.setTitle(R.string.app_name)
+        builder.setIcon(R.mipmap.clock)
+
+        alertDialog = builder.create()
+        alertDialog?.setCanceledOnTouchOutside(true)
+
+        val textView = messageView.findViewById<TextView>(R.id.about_version)
+        textView.text = "v" + BuildConfig.VERSION_NAME
+
+        alertDialog?.show()
     }
 
     private fun taskEditRequest(task: Tasks?) {
@@ -104,7 +138,8 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
     }
 
     override fun onDeleteTaskClicked(task: Tasks) {
-        val dialog: AppDialog = AppDialog()
+        val dialog: AppDialog =
+            AppDialog()
         val args: Bundle = Bundle()
 
         args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_DELETE)
