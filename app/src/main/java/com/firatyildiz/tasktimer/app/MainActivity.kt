@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
 
     override fun onStop() {
         alertDialog?.dismiss()
-
+        Log.d(TAG, "onStop: called")
         super.onStop()
     }
 
@@ -194,7 +194,7 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
         Log.d(TAG, "onBackPressed: back button has been pressed")
         val fragmentManager: FragmentManager = supportFragmentManager
         val fragment =
-            fragmentManager.findFragmentById(R.id.task_details_container) as AddEditFragment
+            fragmentManager.findFragmentById(R.id.task_details_container) as? AddEditFragment
 
         if (fragment == null || fragment.canClose())
             super.onBackPressed()
@@ -210,6 +210,16 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
             dialog.arguments = args
             dialog.show(supportFragmentManager, null)
         }
+    }
+
+    override fun onPause() {
+        Log.d(TAG, "onPause: called")
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy: called")
+        super.onDestroy()
     }
 }
 

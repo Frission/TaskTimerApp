@@ -26,24 +26,27 @@ class AddEditActivity : AppCompatActivity(), AddEditFragment.OnFragmentCloseButt
         setContentView(R.layout.activity_add_edit)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        Log.d(TAG, "onCreate: creating AddEditActivity")
 
-        fragment = AddEditFragment()
+        if (savedInstanceState == null) {
+            val arguments: Bundle = Bundle()
+            val task: Tasks? = intent.extras?.get(Tasks::class.java.simpleName) as Tasks?
 
-        val arguments: Bundle = Bundle()
-        val task: Tasks? = intent.extras?.get(Tasks::class.java.simpleName) as Tasks?
+            if (task != null) {
+                arguments.putSerializable(Tasks::class.java.simpleName, task)
 
-        if (task != null) {
-            arguments.putSerializable(Tasks::class.java.simpleName, task)
-            fragment.arguments = arguments
+                fragment = AddEditFragment()
+                fragment.arguments = arguments
 
-            val fragmentManager: FragmentManager = supportFragmentManager
-            val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.replace(R.id.main_fragment_container, fragment)
-            fragmentTransaction.setCustomAnimations(
-                R.anim.fragment_fade_enter,
-                R.anim.fragment_fade_exit
-            )
-            fragmentTransaction.commit()
+                val fragmentManager: FragmentManager = supportFragmentManager
+                val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
+                fragmentTransaction.replace(R.id.main_fragment_container, fragment)
+                fragmentTransaction.setCustomAnimations(
+                    R.anim.fragment_fade_enter,
+                    R.anim.fragment_fade_exit
+                )
+                fragmentTransaction.commit()
+            }
         }
     }
 
