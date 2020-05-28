@@ -3,11 +3,13 @@ package com.firatyildiz.tasktimer.activities
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +23,7 @@ import kotlinx.coroutines.launch
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
 class AddEditFragment : Fragment() {
-
+    private val TAG = "AddEditFragment"
     enum class FragmentEditMode { EDIT, ADD }
 
     private lateinit var mode: FragmentEditMode
@@ -57,10 +59,10 @@ class AddEditFragment : Fragment() {
         sortOrderTextView = view.findViewById(R.id.add_edit_sortorder)!!
         saveButton = view.findViewById(R.id.add_edit_save)!!
 
-        var arguments = arguments
+        val arguments = arguments
 
         if (arguments != null) {
-            task = arguments.getSerializable(Tasks::class.java.simpleName) as Tasks
+            task = arguments.getSerializable(Tasks::class.java.simpleName) as? Tasks
 
             if (task != null) {
                 nameTextView.setText(task?.name)
@@ -86,19 +88,31 @@ class AddEditFragment : Fragment() {
     }
 
     override fun onAttach(context: Context) {
-        if (context is Activity && context is OnFragmentCloseButtonClicked)
-            closeButtonListener = context
+        Log.d(TAG, "onAttach: called")
+        closeButtonListener = findListenerActivity()
         super.onAttach(context)
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        (activity as? AppCompatActivity)?.let {
+            it.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        }
+    }
+
     override fun onDetach() {
+        Log.d(TAG, "onDetach: called")
         closeButtonListener = null
+        (activity as? AppCompatActivity)?.let {
+            it.supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        }
         super.onDetach()
     }
 
     private var onSaveButtonClicked = View.OnClickListener {
         // Update the database if at least one field has changed
-
+        Log.d(TAG, "onSaveButtonClicked: fragment closing")
         val sortOrder: Int
         if (sortOrderTextView.text.isNullOrEmpty())
             sortOrder = 0
@@ -138,7 +152,18 @@ class AddEditFragment : Fragment() {
             }
         }
 
+        if (closeButtonListener == null)
+            closeButtonListener = findListenerActivity()
+
         closeButtonListener?.onFragmentCloseButtonClicked()
+    }
+
+    // might return null
+    private fun findListenerActivity(): OnFragmentCloseButtonClicked? {
+        return if (context is Activity && context is OnFragmentCloseButtonClicked)
+            context as? OnFragmentCloseButtonClicked
+        else
+            null
     }
 
     fun canClose(): Boolean {

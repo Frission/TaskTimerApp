@@ -1,7 +1,7 @@
 package com.firatyildiz.tasktimer.app
 
 import android.annotation.SuppressLint
-import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -16,7 +16,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.firatyildiz.tasktimer.AppDialog
 import com.firatyildiz.tasktimer.BuildConfig
 import com.firatyildiz.tasktimer.R
-import com.firatyildiz.tasktimer.activities.AddEditActivity
 import com.firatyildiz.tasktimer.activities.AddEditFragment
 import com.firatyildiz.tasktimer.adapters.TaskRecyclerAdapter
 import com.firatyildiz.tasktimer.model.entities.Tasks
@@ -28,16 +27,17 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
     private val TAG = "MainActivity"
 
     companion object {
-        val DIALOG_ID_DELETE = 1
-        val DIALOG_ID_CANCEL_EDIT = 2
+        const val DIALOG_ID_DELETE = 1
+        const val DIALOG_ID_CANCEL_EDIT = 2
     }
 
     private var alertDialog: AlertDialog? = null
     private lateinit var taskViewModel: TasksViewModel
-    private lateinit var fragment: AddEditFragment
+    private var fragment: AddEditFragment? = null
 
     // if we have enough space to show two fragments in one pane
     private var twoPane = false
+        get() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,11 +48,25 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
         // creating it here ensures it survives orientation changes
         taskViewModel = ViewModelProvider(this).get(TasksViewModel::class.java)
 
-        if (findViewById<View>(R.id.task_details_container) != null) {
-            // The detail container view will be present only in the large-screen layouts
-            // res/values-land and res/values-sw600dp
-            // If this view is present, then the app should be in two pane mode
-            twoPane = true
+        Log.d(TAG, "onCreate: twoPane is $twoPane")
+
+        // if the AddEditFragment exists, then the user is editing a Task
+        val editing =
+            supportFragmentManager.findFragmentById(R.id.task_details_container) is AddEditFragment
+
+        // Get references to the fragment containers to show and hide them as appropriate
+        val addEditLayout: View = findViewById(R.id.task_details_container)
+        val mainFragment: View = findViewById(R.id.main_fragment_container)
+
+        if (twoPane) {
+            mainFragment.visibility = View.VISIBLE
+            addEditLayout.visibility = View.VISIBLE
+        } else if (editing) {
+            mainFragment.visibility = View.GONE
+        } else {
+            // in single pane mode but not editing
+            mainFragment.visibility = View.VISIBLE
+            addEditLayout.visibility = View.GONE
         }
     }
 
@@ -84,8 +98,32 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
                 true
             }
             R.id.menuMain_generate -> true
+            android.R.id.home -> {
+                Log.d(TAG, "onOptionsItemSelected: home button pressed")
+                val fragment = supportFragmentManager.findFragmentById(R.id.task_details_container)
+
+                if (fragment is AddEditFragment && fragment.canClose())
+                    closeAddEditFragment()
+                else
+                    showConfirmationDialog()
+
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun showConfirmationDialog() {
+        val dialog = AppDialog()
+        val args = Bundle()
+
+        args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_CANCEL_EDIT)
+        args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.cancelEditDiag_message))
+        args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.cancelEditDiag_positive_caption)
+        args.putInt(AppDialog.DIALOG_NEGATIVE_RID, R.string.cancelEditDiag_negative_caption)
+
+        dialog.arguments = args
+        dialog.show(supportFragmentManager, null)
     }
 
     @SuppressLint("InflateParams", "SetTextI18n")
@@ -107,30 +145,31 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
     }
 
     private fun taskEditRequest(task: Tasks?) {
-        if (twoPane) {
-            fragment = AddEditFragment()
+        Log.d(TAG, "taskEditRequest: called")
 
-            val arguments: Bundle = Bundle()
-            arguments.putSerializable(Tasks::class.java.simpleName, task)
-            fragment.arguments = arguments
+        val fragment = AddEditFragment()
+        val arguments = Bundle()
+        arguments.putSerializable(Tasks::class.java.simpleName, task)
+        fragment.arguments = arguments
 
-            val fragmentManager: FragmentManager = supportFragmentManager
-            val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.replace(R.id.task_details_container, fragment)
-            fragmentTransaction.setCustomAnimations(
-                R.anim.fragment_fade_enter,
-                R.anim.fragment_fade_exit
-            )
-            fragmentTransaction.commit()
-        } else {
-            var detailIntent = Intent(this, AddEditActivity::class.java)
-            if (task != null) {
-                detailIntent.putExtra(Tasks::class.java.simpleName, task)
-                startActivity(detailIntent)
-            } else {
-                startActivity(detailIntent)
-            }
+        val fragmentTransaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.task_details_container, fragment)
+        fragmentTransaction.setCustomAnimations(
+            R.anim.fragment_fade_enter,
+            R.anim.fragment_fade_exit
+        )
+
+        fragmentTransaction.commit()
+
+        if (!twoPane) {
+            // Hide the left hand fragment and show the right hand frame
+            val mainFragment = findViewById<View>(R.id.main_fragment_container)
+            val addEditLayout = findViewById<View>(R.id.task_details_container)
+            mainFragment.visibility = View.GONE
+            addEditLayout.visibility = View.VISIBLE
         }
+
+        this.fragment = fragment
     }
 
     override fun onEditTaskClicked(task: Tasks) {
@@ -138,9 +177,8 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
     }
 
     override fun onDeleteTaskClicked(task: Tasks) {
-        val dialog: AppDialog =
-            AppDialog()
-        val args: Bundle = Bundle()
+        val dialog = AppDialog()
+        val args = Bundle()
 
         args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_DELETE)
         args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.deldiag_message, task.name))
@@ -152,14 +190,35 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
     }
 
     override fun onFragmentCloseButtonClicked() {
-        val fragmentManager: FragmentManager = supportFragmentManager
-        val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.remove(fragment)
-        fragmentTransaction.setCustomAnimations(
-            R.anim.fragment_fade_enter,
-            R.anim.fragment_fade_exit
-        )
-        fragmentTransaction.commit()
+        Log.d(TAG, "onFragmentCloseButtonClicked: closing fragment from MainAcitivity")
+
+        closeAddEditFragment()
+    }
+
+    private fun closeAddEditFragment() {
+        val fragmentTransaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+
+        if (fragment == null)
+            fragment =
+                supportFragmentManager.findFragmentById(R.id.task_details_container) as? AddEditFragment
+
+        if (fragment != null) {
+            fragment?.let { fragmentTransaction.remove(it) }
+            fragmentTransaction.setCustomAnimations(
+                R.anim.fragment_fade_enter,
+                R.anim.fragment_fade_exit
+            )
+            fragmentTransaction.commit()
+        }
+
+        val addEditLayout = findViewById<View>(R.id.task_details_container)
+        val mainFragment = findViewById<View>(R.id.main_fragment_container)
+
+        if (!twoPane) {
+            // At this point the editing fragment has been removed
+            addEditLayout.visibility = View.GONE
+            mainFragment.visibility = View.VISIBLE
+        }
     }
 
     override fun onPositiveDialogResult(dialogId: Int, args: Bundle?) {
@@ -174,7 +233,7 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
                     throw AssertionError("Task ID to be deleted returned null")
             }
 
-            DIALOG_ID_CANCEL_EDIT -> { /* no action required */
+            DIALOG_ID_CANCEL_EDIT -> { /* no action required*/
             }
         }
     }
@@ -182,7 +241,7 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
     override fun onNegativeDialogResult(dialogId: Int, args: Bundle?) {
         Log.d(TAG, "onNegativeDialogResult: called")
         when (dialogId) {
-            DIALOG_ID_CANCEL_EDIT -> finish()
+            DIALOG_ID_CANCEL_EDIT -> closeAddEditFragment()
         }
     }
 
@@ -199,16 +258,7 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
         if (fragment == null || fragment.canClose())
             super.onBackPressed()
         else {
-            val dialog = AppDialog()
-            val args = Bundle()
-
-            args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_CANCEL_EDIT)
-            args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.cancelEditDiag_message))
-            args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.cancelEditDiag_positive_caption)
-            args.putInt(AppDialog.DIALOG_NEGATIVE_RID, R.string.cancelEditDiag_negative_caption)
-
-            dialog.arguments = args
-            dialog.show(supportFragmentManager, null)
+            showConfirmationDialog()
         }
     }
 

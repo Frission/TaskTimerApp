@@ -12,8 +12,8 @@ import com.firatyildiz.tasktimer.R
 import com.firatyildiz.tasktimer.model.entities.Tasks
 
 class TaskRecyclerAdapter(
-    private val context: Context,
-    private val taskButtonsListener: OnTaskButtonClickListener
+    var context: Context,
+    var taskButtonsListener: OnTaskButtonClickListener
 ) :
     RecyclerView.Adapter<TaskRecyclerAdapter.TaskViewHolder>() {
 
