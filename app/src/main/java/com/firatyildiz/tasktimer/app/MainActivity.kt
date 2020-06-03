@@ -1,6 +1,7 @@
 package com.firatyildiz.tasktimer.app
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -13,11 +14,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.firatyildiz.tasktimer.AppDialog
 import com.firatyildiz.tasktimer.BuildConfig
 import com.firatyildiz.tasktimer.R
 import com.firatyildiz.tasktimer.activities.AddEditFragment
+import com.firatyildiz.tasktimer.activities.DurationsReportActivity
 import com.firatyildiz.tasktimer.adapters.TaskRecyclerAdapter
+import com.firatyildiz.tasktimer.debug.TestData
+import com.firatyildiz.tasktimer.model.AppRoomDatabase
 import com.firatyildiz.tasktimer.model.entities.Tasks
 import com.firatyildiz.tasktimer.model.viewmodel.TasksViewModel
 import kotlinx.android.synthetic.main.activity_main.*
@@ -36,7 +41,7 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
     private var fragment: AddEditFragment? = null
 
     // if we have enough space to show two fragments in one pane
-    private var twoPane = false
+    private val twoPane
         get() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +84,12 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
+
+        if (BuildConfig.DEBUG) {
+            val generate = menu.findItem(R.id.menuMain_generate)
+            generate.isVisible = true
+        }
+
         return true
     }
 
@@ -91,13 +102,23 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
                 taskEditRequest(null)
                 true
             }
-            R.id.menuMain_showDurations -> true
+            R.id.menuMain_showDurations -> {
+                startActivity(Intent(this, DurationsReportActivity::class.java))
+                true
+            }
             R.id.menuMain_settings -> true
             R.id.menuMain_about -> {
                 showAboutDialog()
                 true
             }
-            R.id.menuMain_generate -> true
+            R.id.menuMain_generate -> {
+                TestData.generateTestData(
+                    AppRoomDatabase.getDatabase(this)?.timingDao()!!,
+                    AppRoomDatabase.getDatabase(this)?.taskDao()!!,
+                    lifecycleScope
+                )
+                true
+            }
             android.R.id.home -> {
                 Log.d(TAG, "onOptionsItemSelected: home button pressed")
                 val fragment = supportFragmentManager.findFragmentById(R.id.task_details_container)
@@ -189,6 +210,10 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
         dialog.show(supportFragmentManager, null)
     }
 
+    override fun onTaskLongCLick(task: Tasks) {
+
+    }
+
     override fun onFragmentCloseButtonClicked() {
         Log.d(TAG, "onFragmentCloseButtonClicked: closing fragment from MainAcitivity")
 
@@ -246,7 +271,7 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
     }
 
     override fun onDialogCancelled(dialogId: Int) {
-
+        // Required to satisfy the interface
     }
 
     override fun onBackPressed() {

@@ -2,12 +2,12 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph"
+    android:id="@+id/nav_graph2"
     app:startDestination="@id/fragment_durations_report">
 
     <fragment
         android:id="@+id/fragment_durations_report"
-        android:name="com.firatyildiz.tasktimer.app.MainFragment"
-        android:label="@string/main_fragment_label"
-        tools:layout="@layout/fragment_main"/>
+        android:name="com.firatyildiz.tasktimer.activities.DurationsReportFragment"
+        android:label="@string/durations_fragment_label"
+        tools:layout="@layout/fragment_task_durations" />
 </navigation>

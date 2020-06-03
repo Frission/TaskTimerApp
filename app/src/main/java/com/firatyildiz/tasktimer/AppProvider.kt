@@ -39,11 +39,15 @@ class AppProvider : ContentProvider() {
                 TASKS_ID
             )
 
-//            matcher.addURI(CONTENT_AUTHORITY, TimingsContract.TABLE_NAME, TIMINGS)
-//            matcher.addURI(ContentProvider, TimingsContract.TABLE_NAME + "/#", TIMINGS_ID)
-//
-//            matcher.addURI(CONTENT_AUTHORITY, DurationsContract.TABLE_NAME, TASK_DURATIONS)
-//            matcher.addURI(CONTENT_AUTHORITY, DurationsContract.TABLE_NAME + "/#", TASK_DURATIONS_ID)
+            matcher.addURI(CONTENT_AUTHORITY, TimingContract.TABLE_NAME, TIMING)
+            matcher.addURI(CONTENT_AUTHORITY, TimingContract.TABLE_NAME + "/#", TIMING_ID)
+
+            matcher.addURI(CONTENT_AUTHORITY, DurationsContract.TABLE_NAME, TASK_DURATIONS)
+            matcher.addURI(
+                CONTENT_AUTHORITY,
+                DurationsContract.TABLE_NAME + "/#",
+                TASK_DURATIONS_ID
+            )
 
             return matcher
 
@@ -52,8 +56,8 @@ class AppProvider : ContentProvider() {
         private const val TASKS = 100
         private const val TASKS_ID = 101
 
-        private const val TIMINGS = 200
-        private const val TIMINGS_ID = 201
+        private const val TIMING = 200
+        private const val TIMING_ID = 201
 
 //        private const val TASK_TIMINGS = 300
 //        private const val TASK_TIMINGS_ID = 301
@@ -88,26 +92,26 @@ class AppProvider : ContentProvider() {
                 queryBuilder.appendWhere(TasksContract.Columns._ID + " = " + taskId)
             }
 
-//            TIMINGS -> queryBuilder.tables = TimingsContract.TABLE_NAME
-//            TIMINGS_ID -> {
-//                queryBuilder.tables = TimingsContract.TABLE_NAME
-//                var timingId: Long = TimingsContract.getTimingId(uri)
-//                queryBuilder.appendWhere(TimingsContract.Columns._ID + " = " + timingId)
-//            }
+            TIMING -> queryBuilder.tables = TimingContract.TABLE_NAME
+            TIMING_ID -> {
+                queryBuilder.tables = TimingContract.TABLE_NAME
+                val timingId: Long = TimingContract.getTimingId(uri)
+                queryBuilder.appendWhere(TimingContract.Columns._ID + " = " + timingId)
+            }
 
-//            TASK_DURATIONS -> queryBuilder.tables = DurationsContract.TABLE_NAME
-//            TASK_DURATIONS_ID -> {
-//                queryBuilder.tables = DurationsContract.TABLE_NAME
-//                var durationId: Long = DurationsContract.getTimingId(uri)
-//                queryBuilder.appendWhere(DurationsContract.Columns._ID + " = " + durationId)
-//            }
+            TASK_DURATIONS -> queryBuilder.tables = DurationsContract.TABLE_NAME
+            TASK_DURATIONS_ID -> {
+                queryBuilder.tables = DurationsContract.TABLE_NAME
+                val durationId: Long = DurationsContract.getDurationId(uri)
+                queryBuilder.appendWhere(DurationsContract.Columns._ID + " = " + durationId)
+            }
+
             else -> throw IllegalStateException("Unknown URI: $uri")
         }
 
         val db = openHelper?.readableDatabase
-        val cursor: Cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder)
 
-        return cursor
+        return queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder)
     }
 
 
@@ -118,7 +122,7 @@ class AppProvider : ContentProvider() {
 
         val db: SQLiteDatabase?
         val recordId: Long
-        var returnUri: Uri? = null
+        var returnUri: Uri?
 
         when(match)
         {
@@ -128,30 +132,26 @@ class AppProvider : ContentProvider() {
                 if(db != null) {
                     recordId = db.insert(TasksContract.TABLE_NAME, null, values)
                     if(recordId >= 0)
-                        returnUri =
-                            TasksContract.buildTaskUri(
-                                recordId
-                            )
+                        returnUri = TasksContract.buildTaskUri(recordId)
                     else
-                        throw SQLException("Failed to insert into " + uri.toString())
+                        throw SQLException("Failed to insert into $uri")
                 }
                 else
                     throw Exception("Database could not be opened.")
             }
-            TIMINGS -> {
+            TIMING -> {
                 db = openHelper?.writableDatabase
 
-//                if(db != null) {
-//                    recordId = db.insert(TimingsContract.TABLE_NAME, null, values)
-//                    if(recordId >= 0)
-//                        returnUri = TimingsContract.buildTaskUri(recordId)
-//                    else
-//                        throw SQLException("Failed to insert into " + uri.toString())
-//                }
-//                else
-//                    throw Exception("Database could not be opened.")
+                if (db != null) {
+                    recordId = db.insert(TimingContract.TABLE_NAME, null, values)
+                    if (recordId >= 0)
+                        returnUri = TimingContract.buildTimingUri(recordId)
+                    else
+                        throw SQLException("Failed to insert into $uri")
+                } else
+                    throw Exception("Database could not be opened.")
             }
-            else -> throw IllegalStateException("Unknown uri: " + uri)
+            else -> throw IllegalStateException("Unknown uri: $uri")
         }
 
         return returnUri
@@ -161,7 +161,7 @@ class AppProvider : ContentProvider() {
         val match = uriMatcher.match(uri)
 
         val db: SQLiteDatabase?
-        var count: Int = 0
+        var count = 0
         var selectionCriteria: String
 
         when(match) {
@@ -190,29 +190,34 @@ class AppProvider : ContentProvider() {
                     throw Exception("Database could not be opened.")
             }
 
-//            TIMINGS -> {
-//                db = openHelper?.writableDatabase
-//
-//                if(db != null)
-//                    count = db.update(TimingsContract.TABLE_NAME, values, selection, selectionArgs)
-//                else
-//                    throw Exception("Database could not be opened.")
-//            }
+            TIMING -> {
+                db = openHelper?.writableDatabase
 
-//            TASKS_ID -> {
-//                db = openHelper?.writableDatabase
-//                val timingsId = TimingsContract.getTaskId(uri)
-//                selectionCriteria = TimingsContract.Columns._ID + " = " + timingsId
-//
-//                if(selection != null && selection.isNotEmpty()) {
-//                    selectionCriteria += " AND ($selection)"
-//                }
-//
-//                if(db != null)
-//                    count = db.update(TimingsContract.TABLE_NAME, values, selectionCriteria, selectionArgs)
-//                else
-//                    throw Exception("Database could not be opened.")
-//            }
+                if (db != null)
+                    count = db.update(TimingContract.TABLE_NAME, values, selection, selectionArgs)
+                else
+                    throw Exception("Database could not be opened.")
+            }
+
+            TIMING_ID -> {
+                db = openHelper?.writableDatabase
+                val timingsId = TimingContract.getTimingId(uri)
+                selectionCriteria = TimingContract.Columns._ID + " = " + timingsId
+
+                if (selection != null && selection.isNotEmpty()) {
+                    selectionCriteria += " AND ($selection)"
+                }
+
+                if (db != null)
+                    count = db.update(
+                        TimingContract.TABLE_NAME,
+                        values,
+                        selectionCriteria,
+                        selectionArgs
+                    )
+                else
+                    throw Exception("Database could not be opened.")
+            }
 
             else -> throw IllegalStateException("Unknown uri: " + uri)
         }
@@ -225,7 +230,7 @@ class AppProvider : ContentProvider() {
         val match = uriMatcher.match(uri)
 
         val db: SQLiteDatabase?
-        var count: Int = 0
+        var count = 0
         var selectionCriteria: String
 
         when(match) {
@@ -254,38 +259,48 @@ class AppProvider : ContentProvider() {
                     throw Exception("Database could not be opened.")
             }
 
-//            TIMINGS -> {
-//                db = openHelper?.writableDatabase
-//
-//                if(db != null)
-//                    count = db.delete(TimingsContract.TABLE_NAME, selection, selectionArgs)
-//                else
-//                    throw Exception("Database could not be opened.")
-//            }
-//
-//            TASKS_ID -> {
-//                db = openHelper?.writableDatabase
-//                val timingsId = TimingsContract.getTaskId(uri)
-//                selectionCriteria = TimingsContract.Columns._ID + " = " + timingsId
-//
-//                if(selection != null && selection.isNotEmpty()) {
-//                    selectionCriteria += " AND ($selection)"
-//                }
-//
-//                if(db != null)
-//                    count = db.delete(TimingsContract.TABLE_NAME, selectionCriteria, selectionArgs)
-//                else
-//                    throw Exception("Database could not be opened.")
-//            }
+            TIMING -> {
+                db = openHelper?.writableDatabase
 
-            else -> throw IllegalStateException("Unknown uri: " + uri)
+                if (db != null)
+                    count = db.delete(TimingContract.TABLE_NAME, selection, selectionArgs)
+                else
+                    throw Exception("Database could not be opened.")
+            }
+
+            TIMING_ID -> {
+                db = openHelper?.writableDatabase
+                val timingsId = TimingContract.getTimingId(uri)
+                selectionCriteria = TimingContract.Columns._ID + " = " + timingsId
+
+                if (selection != null && selection.isNotEmpty()) {
+                    selectionCriteria += " AND ($selection)"
+                }
+
+                if (db != null)
+                    count = db.delete(TimingContract.TABLE_NAME, selectionCriteria, selectionArgs)
+                else
+                    throw Exception("Database could not be opened.")
+            }
+
+            else -> throw IllegalStateException("Unknown uri: $uri")
         }
 
         return count
     }
 
     override fun getType(uri: Uri): String? {
-        return null;
+        val match = uriMatcher.match(uri)
+
+        return when (match) {
+            TASKS -> TasksContract.CONTENT_TYPE
+            TASKS_ID -> TasksContract.CONTENT_ITEM_TYPE
+            TIMING -> TimingContract.CONTENT_TYPE
+            TIMING_ID -> TimingContract.CONTENT_ITEM_TYPE
+            TASK_DURATIONS -> DurationsContract.CONTENT_TYPE
+            TASK_DURATIONS_ID -> DurationsContract.CONTENT_ITEM_TYPE
+            else -> throw IllegalArgumentException("unknown Uri: $uri")
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package com.firatyildiz.tasktimer.adapters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,7 @@ class TaskRecyclerAdapter(
 ) :
     RecyclerView.Adapter<TaskRecyclerAdapter.TaskViewHolder>() {
 
+    private val TAG = "TaskRecyclerAdapter"
     private val inflater = LayoutInflater.from(context)
     private var tasks = emptyList<Tasks>()
     private var taskToDelete: Int = -1
@@ -30,18 +32,24 @@ class TaskRecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        val current = tasks[position]
-        holder.taskTitle.text = current.name
-        holder.taskDescription.text = current.description
+        val currentTask = tasks[position]
+        holder.taskTitle.text = currentTask.name
+        holder.taskDescription.text = currentTask.description
 
         holder.taskEditButton.setOnClickListener {
-            taskButtonsListener.onEditTaskClicked(current)
+            taskButtonsListener.onEditTaskClicked(currentTask)
         }
 
         holder.taskDeleteButton.setOnClickListener {
             taskToDelete = position
             deleting = true
-            taskButtonsListener.onDeleteTaskClicked(current)
+            taskButtonsListener.onDeleteTaskClicked(currentTask)
+        }
+
+        holder.layout.setOnLongClickListener {
+            Log.d(TAG, "onBindViewHolder: onLongClick starts")
+            taskButtonsListener.onTaskLongCLick(currentTask)
+            true
         }
 
         // animate
@@ -73,6 +81,7 @@ class TaskRecyclerAdapter(
     interface OnTaskButtonClickListener {
         fun onEditTaskClicked(task: Tasks)
         fun onDeleteTaskClicked(task: Tasks)
+        fun onTaskLongCLick(task: Tasks)
     }
 }
 

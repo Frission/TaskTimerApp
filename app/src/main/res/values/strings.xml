@@ -22,7 +22,7 @@
     <string name="add_edit_sortorder_hint">Sort Order (optional)</string>
     <string name="save">Save</string>
     <string name="title_activity_add_edit">Add or Edit Task</string>
-    <string name="first_fragment_label">First Fragment</string>
+    <string name="durations_fragment_label">Task Durations Fragment</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="deldiag_positive_caption">Delete</string>
@@ -33,4 +33,9 @@
     <string name="copyright_info">Copyright © 2020 LearnProgramming.academy</string>
     <string name="about_weblink">Instruction available at www.learnprogramming.academy</string>
     <string name="about_icon">Icon derived from <b>analog clock</b> at openclipart.org by <b>Anonymous</b></string>
+    <string name="td_text_name">Task Name</string>
+    <string name="td_text_date">Date</string>
+    <string name="td_text_duration">Duration</string>
+    <string name="td_text_description">Description</string>
+    <string name="title_activity_durations_report">DurationsReport</string>
 </resources>

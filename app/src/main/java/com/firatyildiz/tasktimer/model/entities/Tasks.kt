@@ -14,4 +14,9 @@ data class Tasks(
 ) : Serializable {
     @PrimaryKey(autoGenerate = true)
     var _id: Int = 0
+
+    companion object {
+        @JvmStatic
+        private val serialVersionUID = 20200529L
+    }
 }

@@ -12,16 +12,16 @@ class TasksRepository(private val tasksDao: TasksDao) {
         return tasksDao.getTaskByName(name)
     }
 
-    suspend fun insert(task: Tasks?): Long? {
-        return task?.let { tasksDao.insertTask(it) }
+    suspend fun insert(task: Tasks): Long? {
+        return tasksDao.insertTask(task)
     }
 
-    suspend fun update(task: Tasks?): Int? {
-        return task?.let { tasksDao.updateTask(it) }
+    suspend fun update(task: Tasks): Int? {
+        return tasksDao.updateTask(task)
     }
 
-    suspend fun delete(task: Tasks?): Int? {
-        return task?.let { tasksDao.deleteTask(it) }
+    suspend fun delete(task: Tasks): Int? {
+        return tasksDao.deleteTask(task)
     }
 
     suspend fun deleteByName(name: String): Int? {
@@ -30,5 +30,9 @@ class TasksRepository(private val tasksDao: TasksDao) {
 
     suspend fun deleteById(taskId: Int): Int? {
         return tasksDao.deleteTaskById(taskId)
+    }
+
+    suspend fun getTaskName(taskId: Int): String {
+        return tasksDao.getTaskName(taskId)
     }
 }

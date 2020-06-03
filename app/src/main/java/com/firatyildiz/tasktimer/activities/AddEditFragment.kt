@@ -135,7 +135,7 @@ class AddEditFragment : Fragment() {
                 }
 
                 if (edited) {
-                    lifecycleScope.launch { tasksRepository?.update(task) }
+                    lifecycleScope.launch { tasksRepository?.update(task!!) }
                 }
             }
 

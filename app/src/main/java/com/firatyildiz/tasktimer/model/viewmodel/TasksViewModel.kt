@@ -30,4 +30,8 @@ class TasksViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteById(taskId: Int) = viewModelScope.launch {
         repository.deleteById(taskId)
     }
+
+    suspend fun getTaskName(taskId: Int): String {
+        return repository.getTaskName(taskId)
+    }
 }
