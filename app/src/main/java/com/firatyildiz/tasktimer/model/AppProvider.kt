@@ -1,4 +1,4 @@
-package com.firatyildiz.tasktimer
+package com.firatyildiz.tasktimer.model
 
 import android.content.ContentProvider
 import android.content.ContentValues
@@ -39,10 +39,21 @@ class AppProvider : ContentProvider() {
                 TASKS_ID
             )
 
-            matcher.addURI(CONTENT_AUTHORITY, TimingContract.TABLE_NAME, TIMING)
-            matcher.addURI(CONTENT_AUTHORITY, TimingContract.TABLE_NAME + "/#", TIMING_ID)
+            matcher.addURI(
+                CONTENT_AUTHORITY,
+                TimingContract.TABLE_NAME,
+                TIMING
+            )
+            matcher.addURI(
+                CONTENT_AUTHORITY, TimingContract.TABLE_NAME + "/#",
+                TIMING_ID
+            )
 
-            matcher.addURI(CONTENT_AUTHORITY, DurationsContract.TABLE_NAME, TASK_DURATIONS)
+            matcher.addURI(
+                CONTENT_AUTHORITY,
+                DurationsContract.TABLE_NAME,
+                TASK_DURATIONS
+            )
             matcher.addURI(
                 CONTENT_AUTHORITY,
                 DurationsContract.TABLE_NAME + "/#",
@@ -92,17 +103,23 @@ class AppProvider : ContentProvider() {
                 queryBuilder.appendWhere(TasksContract.Columns._ID + " = " + taskId)
             }
 
-            TIMING -> queryBuilder.tables = TimingContract.TABLE_NAME
+            TIMING -> queryBuilder.tables =
+                TimingContract.TABLE_NAME
             TIMING_ID -> {
-                queryBuilder.tables = TimingContract.TABLE_NAME
-                val timingId: Long = TimingContract.getTimingId(uri)
+                queryBuilder.tables =
+                    TimingContract.TABLE_NAME
+                val timingId: Long =
+                    TimingContract.getTimingId(uri)
                 queryBuilder.appendWhere(TimingContract.Columns._ID + " = " + timingId)
             }
 
-            TASK_DURATIONS -> queryBuilder.tables = DurationsContract.TABLE_NAME
+            TASK_DURATIONS -> queryBuilder.tables =
+                DurationsContract.TABLE_NAME
             TASK_DURATIONS_ID -> {
-                queryBuilder.tables = DurationsContract.TABLE_NAME
-                val durationId: Long = DurationsContract.getDurationId(uri)
+                queryBuilder.tables =
+                    DurationsContract.TABLE_NAME
+                val durationId: Long =
+                    DurationsContract.getDurationId(uri)
                 queryBuilder.appendWhere(DurationsContract.Columns._ID + " = " + durationId)
             }
 
@@ -132,7 +149,10 @@ class AppProvider : ContentProvider() {
                 if(db != null) {
                     recordId = db.insert(TasksContract.TABLE_NAME, null, values)
                     if(recordId >= 0)
-                        returnUri = TasksContract.buildTaskUri(recordId)
+                        returnUri =
+                            TasksContract.buildTaskUri(
+                                recordId
+                            )
                     else
                         throw SQLException("Failed to insert into $uri")
                 }
@@ -145,7 +165,10 @@ class AppProvider : ContentProvider() {
                 if (db != null) {
                     recordId = db.insert(TimingContract.TABLE_NAME, null, values)
                     if (recordId >= 0)
-                        returnUri = TimingContract.buildTimingUri(recordId)
+                        returnUri =
+                            TimingContract.buildTimingUri(
+                                recordId
+                            )
                     else
                         throw SQLException("Failed to insert into $uri")
                 } else
@@ -201,7 +224,8 @@ class AppProvider : ContentProvider() {
 
             TIMING_ID -> {
                 db = openHelper?.writableDatabase
-                val timingsId = TimingContract.getTimingId(uri)
+                val timingsId =
+                    TimingContract.getTimingId(uri)
                 selectionCriteria = TimingContract.Columns._ID + " = " + timingsId
 
                 if (selection != null && selection.isNotEmpty()) {
@@ -270,7 +294,8 @@ class AppProvider : ContentProvider() {
 
             TIMING_ID -> {
                 db = openHelper?.writableDatabase
-                val timingsId = TimingContract.getTimingId(uri)
+                val timingsId =
+                    TimingContract.getTimingId(uri)
                 selectionCriteria = TimingContract.Columns._ID + " = " + timingsId
 
                 if (selection != null && selection.isNotEmpty()) {

@@ -2,7 +2,7 @@ package com.firatyildiz.tasktimer.model.daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.firatyildiz.tasktimer.TasksContract
+import com.firatyildiz.tasktimer.model.TasksContract
 import com.firatyildiz.tasktimer.model.entities.Tasks
 import org.jetbrains.annotations.TestOnly
 

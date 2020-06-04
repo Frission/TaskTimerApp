@@ -1,7 +1,6 @@
 package com.firatyildiz.tasktimer.adapters
 
 import android.content.Context
-import android.text.format.DateFormat.getDateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,15 +8,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.firatyildiz.tasktimer.R
 import com.firatyildiz.tasktimer.model.views.ViewTaskDurations
-import java.text.DateFormat
 import java.util.*
 
 class TaskDurationsRecyclerAdapter(var context: Context) :
     RecyclerView.Adapter<TaskDurationsRecyclerAdapter.ViewHolder>() {
 
-    var durations: List<ViewTaskDurations>? = null
-
-    val dateFormat: DateFormat = getDateFormat(context)
+    private var durations: List<ViewTaskDurations>? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -46,7 +42,7 @@ class TaskDurationsRecyclerAdapter(var context: Context) :
         val minutes = remainder / 60
         val seconds = remainder - (minutes * 60)
 
-        return String.format(Locale.US, "%02d:%02d%02d", hours, minutes, seconds)
+        return String.format(Locale.US, "%02d:%02d:%02d", hours, minutes, seconds)
     }
 
     fun setTaskDurations(durations: List<ViewTaskDurations>?) {

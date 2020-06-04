@@ -1,9 +1,9 @@
 package com.firatyildiz.tasktimer.model.views
 
 import androidx.room.DatabaseView
-import com.firatyildiz.tasktimer.DurationsContract
-import com.firatyildiz.tasktimer.TasksContract
-import com.firatyildiz.tasktimer.TimingContract
+import com.firatyildiz.tasktimer.model.DurationsContract
+import com.firatyildiz.tasktimer.model.TasksContract
+import com.firatyildiz.tasktimer.model.TimingContract
 
 @DatabaseView(
     "SELECT ${TimingContract.TABLE_NAME}.${TimingContract.Columns._ID}, " +

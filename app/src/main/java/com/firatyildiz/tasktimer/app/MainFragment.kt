@@ -131,7 +131,7 @@ class MainFragment : Fragment(), TaskRecyclerAdapter.OnTaskButtonClickListener {
         currentTiming.setDuration()
 
         lifecycleScope.launch {
-            timingRepository.update(currentTiming)
+            timingRepository.insert(currentTiming)
         }
     }
 

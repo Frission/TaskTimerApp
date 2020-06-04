@@ -1,4 +1,4 @@
-package com.firatyildiz.tasktimer
+package com.firatyildiz.tasktimer.app
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -7,6 +7,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.DialogFragment
+import com.firatyildiz.tasktimer.R
 
 class AppDialog : DialogFragment() {
 

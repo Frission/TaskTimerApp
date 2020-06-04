@@ -15,11 +15,6 @@
         android:title="@string/menu_item_show_durations"
         app:showAsAction="never" />
     <item
-        android:id="@+id/menuMain_settings"
-        android:orderInCategory="102"
-        android:title="@string/menu_item_settings"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/menuMain_about"
         android:icon="@android:drawable/ic_menu_info_details"
         android:orderInCategory="103"

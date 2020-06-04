@@ -1,10 +1,10 @@
-package com.firatyildiz.tasktimer
+package com.firatyildiz.tasktimer.model
 
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.BaseColumns
-import com.firatyildiz.tasktimer.AppProvider.Companion.CONTENT_AUTHORITY
-import com.firatyildiz.tasktimer.AppProvider.Companion.CONTENT_AUTHORITY_URI
+import com.firatyildiz.tasktimer.model.AppProvider.Companion.CONTENT_AUTHORITY
+import com.firatyildiz.tasktimer.model.AppProvider.Companion.CONTENT_AUTHORITY_URI
 
 object DurationsContract {
     const val TABLE_NAME = "ViewTaskDurations"
@@ -23,11 +23,15 @@ object DurationsContract {
 
     object Columns {
         const val _ID = BaseColumns._ID
-        const val DURATIONS_NAME = TasksContract.Columns.TASKS_NAME
-        const val DURATIONS_DESCRIPTION = TasksContract.Columns.TASKS_DESCRIPTION
-        const val DURATIONS_START_TIME = TimingContract.Columns.TIMING_START_TIME
+        const val DURATIONS_NAME =
+            TasksContract.Columns.TASKS_NAME
+        const val DURATIONS_DESCRIPTION =
+            TasksContract.Columns.TASKS_DESCRIPTION
+        const val DURATIONS_START_TIME =
+            TimingContract.Columns.TIMING_START_TIME
         const val DURATIONS_START_DATE = "StartDate"
-        const val DURATIONS_DURATION = TimingContract.Columns.TIMING_DURATION
+        const val DURATIONS_DURATION =
+            TimingContract.Columns.TIMING_DURATION
     }
 }
 

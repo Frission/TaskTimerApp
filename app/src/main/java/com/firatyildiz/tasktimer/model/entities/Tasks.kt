@@ -3,7 +3,7 @@ package com.firatyildiz.tasktimer.model.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.firatyildiz.tasktimer.TasksContract
+import com.firatyildiz.tasktimer.model.TasksContract
 import java.io.Serializable
 
 @Entity

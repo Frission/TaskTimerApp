@@ -15,4 +15,8 @@ class TimingRepository(private val timingDao: TimingDao) {
     suspend fun update(timing: Timing): Int? {
         return timingDao.updateTiming(timing)
     }
+
+    suspend fun deleteAllTimingsBeforeTime(pickedTime: Long) {
+        timingDao.deleteAllTimingsBeforeTime(pickedTime)
+    }
 }

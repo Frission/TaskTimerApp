@@ -28,7 +28,7 @@
             android:parentActivityName=".app.MainActivity" />
 
         <provider
-            android:name=".AppProvider"
+            android:name=".model.AppProvider"
             android:authorities="com.firatyildiz.tasktimer.provider"
             android:exported="true" />
     </application>

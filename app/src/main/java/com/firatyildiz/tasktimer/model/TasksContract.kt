@@ -1,10 +1,10 @@
-package com.firatyildiz.tasktimer
+package com.firatyildiz.tasktimer.model
 
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.BaseColumns
-import com.firatyildiz.tasktimer.AppProvider.Companion.CONTENT_AUTHORITY
-import com.firatyildiz.tasktimer.AppProvider.Companion.CONTENT_AUTHORITY_URI
+import com.firatyildiz.tasktimer.model.AppProvider.Companion.CONTENT_AUTHORITY
+import com.firatyildiz.tasktimer.model.AppProvider.Companion.CONTENT_AUTHORITY_URI
 
 object TasksContract {
     const val TABLE_NAME = "Tasks"

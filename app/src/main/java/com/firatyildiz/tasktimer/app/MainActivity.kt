@@ -15,7 +15,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.firatyildiz.tasktimer.AppDialog
 import com.firatyildiz.tasktimer.BuildConfig
 import com.firatyildiz.tasktimer.R
 import com.firatyildiz.tasktimer.activities.AddEditFragment
@@ -106,7 +105,6 @@ class MainActivity : AppCompatActivity(), TaskRecyclerAdapter.OnTaskButtonClickL
                 startActivity(Intent(this, DurationsReportActivity::class.java))
                 true
             }
-            R.id.menuMain_settings -> true
             R.id.menuMain_about -> {
                 showAboutDialog()
                 true

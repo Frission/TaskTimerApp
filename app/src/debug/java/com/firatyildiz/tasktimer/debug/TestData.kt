@@ -19,8 +19,8 @@ class TestData {
             coroutineScope: CoroutineScope
         ) {
             val SECS_IN_DAY = 864
-            val LOWER_BOUND = 50
-            val UPPER_BOUND = 250
+            val LOWER_BOUND = 10
+            val UPPER_BOUND = 50
             val MAX_DURATION = SECS_IN_DAY / 6
 
             // get a list of task ID's from the database
@@ -57,7 +57,7 @@ class TestData {
         @TestOnly
         private fun randomDateTime(): Long {
             // Set the range of years, change as necessary
-            val startYear = 2019
+            val startYear = 2020
             val endYear = 2020
 
             val sec = getRandomInt(59)

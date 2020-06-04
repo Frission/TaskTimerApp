@@ -1,4 +1,4 @@
-package com.firatyildiz.tasktimer
+package com.firatyildiz.tasktimer.model
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase

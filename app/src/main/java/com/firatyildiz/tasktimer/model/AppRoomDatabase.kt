@@ -6,9 +6,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.firatyildiz.tasktimer.DurationsContract
-import com.firatyildiz.tasktimer.TasksContract
-import com.firatyildiz.tasktimer.TimingContract
 import com.firatyildiz.tasktimer.model.daos.TasksDao
 import com.firatyildiz.tasktimer.model.daos.TimingDao
 import com.firatyildiz.tasktimer.model.daos.ViewTaskDurationsDao

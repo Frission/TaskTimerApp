@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.firatyildiz.tasktimer.TimingContract
+import com.firatyildiz.tasktimer.model.TimingContract
 import java.io.Serializable
 import java.util.*
 

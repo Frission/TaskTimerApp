@@ -2,7 +2,7 @@ package com.firatyildiz.tasktimer.model.daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.firatyildiz.tasktimer.TimingContract
+import com.firatyildiz.tasktimer.model.TimingContract
 import com.firatyildiz.tasktimer.model.entities.Timing
 
 @Dao
@@ -19,4 +19,7 @@ interface TimingDao {
 
     @Delete
     suspend fun deleteTiming(timing: Timing): Int?
+
+    @Query("DELETE FROM ${TimingContract.TABLE_NAME} WHERE ${TimingContract.Columns.TIMING_START_TIME} < (:pickedTime)")
+    suspend fun deleteAllTimingsBeforeTime(pickedTime: Long)
 }
